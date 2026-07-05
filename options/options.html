@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CodingSync Setup</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+
+    <!-- ── Step 1: GitHub OAuth ── -->
+    <section id="step-auth" class="step active">
+      <div class="brand">
+        <img src="../icons/icon48.png" width="40" alt="">
+        <div>
+          <h1>Welcome to CodingSync</h1>
+          <p class="sub">Automatically sync your accepted solutions to GitHub.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Step 1 of 2</p>
+        <h2>Connect your GitHub account</h2>
+        <p class="sub">Click below to open GitHub's authorization page. You'll see GitHub's standard "Authorize application" screen — just click <strong>Authorize</strong> and you're done.</p>
+
+        <button id="btn-auth" class="btn-primary btn-github">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span id="btn-auth-label">Authorize with GitHub</span>
+        </button>
+
+        <p id="auth-status" class="status"></p>
+      </div>
+    </section>
+
+    <!-- ── Step 2: Repo Setup ── -->
+    <section id="step-repo" class="step">
+      <div id="user-card" class="user-card">
+        <img id="avatar" src="" width="36" alt="">
+        <div>
+          <p id="username" class="user-name"></p>
+          <p class="sub small">Connected to GitHub</p>
+        </div>
+        <button id="btn-disconnect" class="link-btn">Disconnect</button>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Step 2 of 2</p>
+        <h2>Set up your repository</h2>
+        <p class="sub">CodingSync will commit your solutions here. We'll create it for you if it doesn't exist.</p>
+
+        <form id="repo-form">
+          <label>Repository Name
+            <input type="text" id="repo" placeholder="coding-solutions" value="coding-solutions">
+          </label>
+
+          <fieldset>
+            <legend>Visibility</legend>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="visibility" value="private" checked>
+                <span>
+                  <strong>Private</strong>
+                  <span class="sub small">Only you can see it</span>
+                </span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="visibility" value="public">
+                <span>
+                  <strong>Public</strong>
+                  <span class="sub small">Anyone can see it</span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label>Folder Strategy
+            <select id="folderStrategy">
+              <option value="platform_difficulty">Platform / Difficulty / Problem</option>
+              <option value="platform">Platform / Problem</option>
+              <option value="difficulty">Difficulty / Problem</option>
+              <option value="flat">Flat</option>
+            </select>
+          </label>
+
+          <p id="repo-msg" class="status"></p>
+          <button type="submit" class="btn-primary">Finish Setup →</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ── Step 3: Done ── -->
+    <section id="step-done" class="step">
+      <div class="done-wrap">
+        <div class="done-icon">✓</div>
+        <h1>You're all set!</h1>
+        <p class="sub">CodingSync will automatically commit your accepted solutions to
+          <a id="repo-link" href="#" target="_blank" class="repo-link"></a>.
+        </p>
+        <p class="sub">Solve a problem on LeetCode, Codeforces, GFG, CodeChef, or AtCoder — it syncs instantly.</p>
+        <div class="done-actions">
+          <button id="btn-close" class="btn-primary">Start Solving →</button>
+          <button id="btn-change-repo" class="btn-ghost">Change repository</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="options.js" type="module"></script>
+</body>
+</html>

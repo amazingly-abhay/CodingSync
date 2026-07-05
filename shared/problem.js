@@ -1,0 +1,17 @@
+export const createProblem = (data = {}) => ({
+  id: data.id ?? '',
+  title: data.title ?? '',
+  slug: data.slug ?? '',
+  url: data.url ?? '',
+  platform: data.platform ?? '',
+  difficulty: data.difficulty ?? '',
+  tags: data.tags ?? [],
+  description: data.description ?? '',
+  examples: data.examples ?? [],
+  constraints: data.constraints ?? '',
+  solution: data.solution ?? '',
+  language: data.language ?? '',
+  runtime: data.runtime ?? '',
+  memory: data.memory ?? '',
+  timestamp: data.timestamp ?? new Date().toISOString(),
+});

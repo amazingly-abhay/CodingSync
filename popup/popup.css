@@ -1,0 +1,123 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  width: 280px;
+  background: #0d1117;
+  color: #e6edf3;
+  /* prevent flash of unstyled content before JS runs */
+  visibility: hidden;
+}
+body.ready { visibility: visible; }
+
+.hidden { display: none !important; }
+
+/* ── Setup state ── */
+.setup-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 28px 20px 24px;
+}
+.setup-hero h1 { font-size: 17px; font-weight: 700; }
+.sub { font-size: 12px; color: #8b949e; line-height: 1.5; }
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  background: #24292f;
+  border: 1px solid #444c56;
+  border-radius: 8px;
+  color: #e6edf3;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+.btn-primary:hover { background: #2d333b; }
+
+/* ── Main state ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid #21262d;
+}
+.header-left { display: flex; align-items: center; gap: 7px; }
+.app-name { font-size: 13px; font-weight: 700; color: #58a6ff; }
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.icon-btn:hover { color: #e6edf3; background: #21262d; }
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: #8b949e;
+  border-bottom: 1px solid #21262d;
+}
+.user-row img { border-radius: 50%; }
+.sep { color: #30363d; }
+.repo-link { color: #58a6ff; text-decoration: none; font-size: 12px; }
+.repo-link:hover { text-decoration: underline; }
+
+.stats-row {
+  display: flex;
+  padding: 12px 14px;
+  gap: 10px;
+  border-bottom: 1px solid #21262d;
+}
+.stat {
+  flex: 1;
+  background: #161b22;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.stat span { font-size: 22px; font-weight: 700; color: #58a6ff; display: block; }
+.stat label { font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: .05em; }
+
+.last-card {
+  padding: 10px 14px 12px;
+  border-bottom: 1px solid #21262d;
+}
+.card-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #6e7681;
+  margin-bottom: 4px;
+}
+#last-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.small { font-size: 11px; }
+
+footer { padding: 10px 14px; }
+.btn-secondary {
+  width: 100%;
+  padding: 7px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #8b949e;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-secondary:hover { background: #30363d; color: #e6edf3; }

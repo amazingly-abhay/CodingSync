@@ -1,0 +1,7 @@
+name = "codingsync-oauth"
+main = "oauth-proxy.js"
+compatibility_date = "2024-01-01"
+
+# Secrets (set via CLI, never commit):
+#   npx wrangler secret put GITHUB_CLIENT_ID
+#   npx wrangler secret put GITHUB_CLIENT_SECRET

@@ -1,0 +1,18 @@
+# Never commit these
+.env
+.env.*
+secrets.js
+config.local.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# If you ever add a build step
+node_modules/
+dist/

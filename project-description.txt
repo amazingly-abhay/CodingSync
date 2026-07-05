@@ -1,0 +1,46 @@
+Competitive Programming Sync Extension - Compact Architecture
+
+Goal: A lightweight, serverless browser extension that automatically saves accepted solutions from coding platforms to a GitHub repository.
+
+Core Features
+    • Trigger only when a submission is Accepted.
+    • Extract title, description, examples, constraints, difficulty, tags, language, solution, URL, runtime, memory.
+    • Generate README.md + solution file.
+    • Commit directly to GitHub via REST API.
+    • No backend/database; event-driven Manifest V3.
+
+Architecture
+    • Core Kernel: Plugin Manager, Event Manager, Upload Manager, Repository Manager, Markdown Generator, Queue Manager, Storage, Logger.
+    • Platform Plugins implement a common interface.
+    • Normalize extracted data into a universal Problem object.
+    • Upload pipeline is platform-independent.
+
+Plugin Interface
+    • id, name, hostnames, isSupported(url), initialize(), detectAccepted(), extractProblem(), extractSolution(), extractMetadata().
+
+Folder Structure
+    • core/, plugins/, shared/, templates/, popup/, options/, utils/.
+    • Each platform has its own folder (leetcode, gfg, codechef, codeforces, atcoder, etc.).
+
+Workflow
+    • Open problem → Plugin loads → Observe submission result → Accepted → Extract → Normalize → Generate Markdown → Queue Upload → GitHub Commit.
+
+Design Patterns
+    • Registry + Factory (plugin loading)
+    • Adapter (platform normalization)
+    • Strategy (markdown/output providers)
+    • Event Bus (decoupled events)
+    • Command + Queue (uploads/retries)
+    • Pipeline (parsing stages)
+
+Future Extensibility
+    • Add a new platform by creating a plugin and registering it.
+    • No changes required in upload manager, markdown generator, queue, storage, or core engine.
+    
+Future Enhancements
+    • GitLab/Bitbucket providers
+    • AI-generated explanations
+    • Automatic complexity detection
+    • Offline upload queue
+    • Repository statistics and dashboards
+    • Custom folder strategies
