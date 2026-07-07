@@ -1,35 +1,70 @@
-export const Storage = {
-  async get(keys) {
-    return new Promise((res, rej) => chrome.storage.sync.get(keys, d => {
-      if (chrome.runtime.lastError) rej(chrome.runtime.lastError);
-      else res(d);
-    }));
+const createStorage = area => ({
+  get(keys) {
+    return new Promise((resolve, reject) => {
+      chrome.storage[area].get(keys, result => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(result);
+        }
+      });
+    });
   },
-  async set(data) {
-    return new Promise((res, rej) => chrome.storage.sync.set(data, () => {
-      if (chrome.runtime.lastError) rej(chrome.runtime.lastError);
-      else res();
-    }));
+
+  set(data) {
+    return new Promise((resolve, reject) => {
+      chrome.storage[area].set(data, () => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve();
+        }
+      });
+    });
   },
-  async getLocal(keys) {
-    return new Promise((res, rej) => chrome.storage.local.get(keys, d => {
-      if (chrome.runtime.lastError) rej(chrome.runtime.lastError);
-      else res(d);
-    }));
+
+  remove(keys) {
+    return new Promise((resolve, reject) => {
+      chrome.storage[area].remove(keys, () => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve();
+        }
+      });
+    });
   },
-  async setLocal(data) {
-    return new Promise((res, rej) => chrome.storage.local.set(data, () => {
-      if (chrome.runtime.lastError) rej(chrome.runtime.lastError);
-      else res();
-    }));
+});
+
+const syncStorage = createStorage('sync');
+const localStorage = createStorage('local');
+
+export const Storage = Object.freeze({
+  get: syncStorage.get,
+  set: syncStorage.set,
+
+  getLocal: localStorage.get,
+  setLocal: localStorage.set,
+
+  getConfig() {
+    return this.get([
+      'token',
+      'owner',
+      'repo',
+      'branch',
+      'folderStrategy',
+      'githubUser',
+    ]);
   },
-  async getConfig() {
-    return this.get(['token', 'owner', 'repo', 'branch', 'folderStrategy', 'githubUser']);
+
+  clearAuth() {
+    return syncStorage.remove([
+      'token',
+      'owner',
+      'repo',
+      'branch',
+      'folderStrategy',
+      'githubUser',
+    ]);
   },
-  async clearAuth() {
-    return new Promise((res, rej) => chrome.storage.sync.remove(
-      ['token', 'owner', 'repo', 'branch', 'folderStrategy', 'githubUser'],
-      () => chrome.runtime.lastError ? rej(chrome.runtime.lastError) : res()
-    ));
-  },
-};
+});

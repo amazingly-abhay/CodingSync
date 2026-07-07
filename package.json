@@ -1,0 +1,12 @@
+{
+  "name": "codingsync",
+  "version": "1.0.0",
+  "description": "Auto-sync accepted solutions to GitHub",
+  "scripts": {
+    "build": "esbuild content.js --bundle --outfile=content-bundle.js --format=iife",
+    "watch": "esbuild content.js --bundle --outfile=content-bundle.js --format=iife --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.2"
+  }
+}

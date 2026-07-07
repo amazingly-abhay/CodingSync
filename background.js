@@ -4,58 +4,129 @@ import { logger } from './core/Logger.js';
 import { Storage } from './core/Storage.js';
 
 // Open setup on install; re-open on update only if not yet configured
+/* ------------------------- Installation ------------------------- */
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  const setupUrl = chrome.runtime.getURL('options/options.html');
+
   if (reason === 'install') {
-    chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
+    chrome.tabs.create({ url: setupUrl });
     return;
   }
+
   if (reason === 'update') {
     const { token } = await Storage.getConfig();
-    if (!token) chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
+    if (!token) {
+      chrome.tabs.create({ url: setupUrl });
+    }
   }
 });
 
 // Message handler
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (msg.type === 'PROBLEM_ACCEPTED') {
+/* ------------------------- Message Handlers ------------------------- */
+const messageHandlers = {
+  async PROBLEM_ACCEPTED(msg) {
+    if (!msg.problem?.title) {
+      throw new Error('Invalid problem payload.');
+    }
+
     logger.info(`Received: ${msg.problem.title}`);
-    queueManager.enqueue(msg.problem);
-    sendResponse({ ok: true });
-  } else if (msg.type === 'RETRY_QUEUE') {
-    queueManager.process();
-    sendResponse({ ok: true });
-  } else if (msg.type === 'OPEN_SETUP') {
-    chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
-    sendResponse({ ok: true });
+    await queueManager.enqueue(msg.problem);
+
+    return { ok: true };
+  },
+
+  async RETRY_QUEUE() {
+    await queueManager.process();
+    return { ok: true };
+  },
+
+  async OPEN_SETUP() {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('options/options.html')
+    });
+
+    return { ok: true };
   }
-  return true; // keep channel open for async sendResponse
+};
+
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  const handler = messageHandlers[msg.type];
+
+  if (!handler) {
+    sendResponse({
+      ok: false,
+      error: `Unknown message type: ${msg.type}`
+    });
+    return false;
+  }
+
+  handler(msg)
+    .then(sendResponse)
+    .catch(error => {
+      logger.error(error);
+      sendResponse({
+        ok: false,
+        error: error.message
+      });
+    });
+
+  return true;
 });
 
-// Retry queue on browser startup
-chrome.runtime.onStartup.addListener(() => queueManager.process());
-
-// Create retry alarm only if it doesn't already exist
-// (service workers restart frequently — chrome.alarms.create would duplicate)
-chrome.alarms.get('retryQueue', alarm => {
-  if (!alarm) chrome.alarms.create('retryQueue', { periodInMinutes: 5 });
-});
-chrome.alarms.onAlarm.addListener(a => {
-  if (a.name === 'retryQueue') queueManager.process();
+/* ------------------------- Startup ------------------------- */
+chrome.runtime.onStartup.addListener(() => {
+  queueManager.process();
 });
 
-// Upload events → notify popup + update stats
-bus.on('upload:success', problem => {
-  chrome.runtime.sendMessage({ type: 'UPLOAD_SUCCESS', problem }).catch(() => {});
-  updateStats(problem);
+/* ------------------------- Retry Alarm ------------------------- */
+const RETRY_ALARM = 'retryQueue';
+
+chrome.alarms.get(RETRY_ALARM, alarm => {
+  if (!alarm) {
+    chrome.alarms.create(RETRY_ALARM, {
+      periodInMinutes: 5
+    });
+  }
 });
+
+chrome.alarms.onAlarm.addListener(({ name }) => {
+  if (name === RETRY_ALARM) {
+    queueManager.process();
+  }
+});
+
+/* ------------------------- Upload Events ------------------------- */
+bus.on('upload:success', async problem => {
+  chrome.runtime
+    .sendMessage({
+      type: 'UPLOAD_SUCCESS',
+      problem
+    })
+    .catch(() => {});
+
+  await updateStats(problem);
+});
+
 bus.on('upload:failed', problem => {
-  chrome.runtime.sendMessage({ type: 'UPLOAD_FAILED', problem }).catch(() => {});
+  chrome.runtime
+    .sendMessage({
+      type: 'UPLOAD_FAILED',
+      problem
+    })
+    .catch(() => {});
 });
-
+/* ------------------------- Statistics ------------------------- */
 async function updateStats(problem) {
   const { stats = {} } = await Storage.getLocal('stats');
-  stats.total       = (stats.total ?? 0) + 1;
-  stats.lastSolved  = problem.title;
-  stats.lastSolvedAt = problem.timestamp;
-  await Storage.setLocal({ stats });
+
+  const updatedStats = {
+    ...stats,
+    total: (stats.total ?? 0) + 1,
+    lastSolved: problem.title,
+    lastSolvedAt: problem.timestamp
+  };
+
+  await Storage.setLocal({
+    stats: updatedStats
+  });
 }

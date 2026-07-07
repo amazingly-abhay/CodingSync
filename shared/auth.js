@@ -14,11 +14,11 @@
 // 5. Copy Worker URL → paste below as PROXY_URL
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CLIENT_ID = '__YOUR_CLIENT_ID__';
+const CLIENT_ID = 'Ov23lisTY2ZS4THG0aF9';
 // e.g. 'Ov23liXXXXXXXXXXXX'
 // Safe to commit — this is public by design in OAuth.
 
-const PROXY_URL = '__YOUR_PROXY_URL__';
+const PROXY_URL = 'https://codingsync.abhaypratap1213.workers.dev';
 // e.g. 'https://codingsync-oauth.yourname.workers.dev'
 // Root Worker URL only — no /exchange path. Safe to commit.
 
@@ -99,3 +99,15 @@ export async function createRepo(token, name, isPrivate) {
   if (!res.ok) throw new Error(`Failed to create repo (${res.status})`);
   return res.json();
 }
+
+export async function getRepoInfo(token, owner, repo) {
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+    },
+  });
+  if (!res.ok) throw new Error(`Failed to fetch repo info (${res.status})`);
+  return res.json();
+}
+

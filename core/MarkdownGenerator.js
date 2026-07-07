@@ -8,7 +8,7 @@ export class MarkdownGenerator {
   generate(problem) {
     const {
       title, url, platform, difficulty, tags = [], description,
-      examples = [], constraints, solution, language, runtime, memory, timestamp,
+      examples = [], constraints, code, language, runtime, memory, timestamp,
     } = problem;
 
     const badge    = DIFF_BADGE[difficulty] ?? (difficulty ? `**${difficulty}**` : '');
@@ -33,8 +33,8 @@ export class MarkdownGenerator {
       examplesStr,
       constraints ? `## Constraints\n\n${constraints}` : '',
       `## Tags\n\n${tagStr}`,
-      solution
-        ? `## Solution\n\n\`\`\`${language ?? ''}\n${solution}\n\`\`\``
+      code
+        ? `## Solution\n\n\`\`\`${language ?? ''}\n${code}\n\`\`\``
         : '',
       `## Stats\n\n| Metric | Value |\n|--------|-------|\n| Runtime | ${runtime ?? 'N/A'} |\n| Memory | ${memory ?? 'N/A'} |\n| Solved At | ${new Date(timestamp).toUTCString()} |`,
     ];

@@ -5,8 +5,8 @@
   "description": "Auto-sync accepted solutions to GitHub",
   "permissions": ["storage", "scripting", "tabs", "alarms", "identity"],
   "host_permissions": [
-    "https://leetcode.com/*",
-    "https://www.geeksforgeeks.org/*",
+    "https://leetcode.com/problems/*",
+    "https://www.geeksforgeeks.org/problems/*",
     "https://www.codechef.com/*",
     "https://codeforces.com/*",
     "https://atcoder.jp/*",
@@ -20,44 +20,33 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://leetcode.com/*",
-        "https://www.geeksforgeeks.org/*",
-        "https://www.codechef.com/*",
-        "https://codeforces.com/*",
-        "https://atcoder.jp/*"
-      ],
-      "js": ["content.js"],
-      "type": "module",
-      "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
+      "matches": ["https://leetcode.com/problems/*"],
+      "js": ["inject/leetcode-network.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
     {
-      "resources": [
-        "core/*.js",
-        "plugins/*.js",
-        "plugins/**/*.js",
-        "shared/*.js",
-        "utils/*.js"
-      ],
       "matches": [
         "https://leetcode.com/*",
         "https://www.geeksforgeeks.org/*",
+        "https://practice.geeksforgeeks.org/*",
+        "https://geeksforgeeks.org/*",
         "https://www.codechef.com/*",
         "https://codeforces.com/*",
         "https://atcoder.jp/*"
-      ]
+      ],
+      "js": ["content-bundle.js"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_icon": "icons/icon48.png"
+    "default_icon": "icons/CodingSync-icon.png"
   },
   "options_page": "options/options.html",
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/CodingSync-icon.png",
+    "48": "icons/CodingSync-icon.png",
+    "128": "icons/CodingSync-icon.png"
   }
 }

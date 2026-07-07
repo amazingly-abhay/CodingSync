@@ -18,7 +18,11 @@ export class GitHubClient {
       headers: this.headers,
       body: body ? JSON.stringify(body) : undefined,
     });
-    if (!res.ok) throw new Error(`GitHub ${method} ${path || '/'} → ${res.status}`);
+    if (!res.ok) {
+      let detail = '';
+      try { detail = ` — ${(await res.json()).message}`; } catch { /* ignore */ }
+      throw new Error(`GitHub ${method} ${path || '/'}${detail} (${res.status})`);
+    }
     return res.json();
   }
 
@@ -33,9 +37,12 @@ export class GitHubClient {
 
   async putFile(filePath, content, message) {
     const sha = await this.getSHA(filePath);
+    const contentBase64 = btoa(
+    String.fromCharCode(...new TextEncoder().encode(content))
+    );
     const body = {
       message,
-      content: btoa(unescape(encodeURIComponent(content))),
+      content: contentBase64,
       branch: this.branch,
       ...(sha && { sha }),
     };
@@ -59,7 +66,19 @@ export class GitHubClient {
       message, tree: tree.sha, parents: [parentSha],
     });
 
-    await this._req(`/git/refs/heads/${this.branch}`, 'PATCH', { sha: newCommit.sha });
+   // Try a fast-forward update.
+    // If the branch has changed externally, abort and let the caller retry.
+    try {
+      await this._req(`/git/refs/heads/${this.branch}`, 'PATCH', { sha: newCommit.sha });
+    } catch (err) {
+      if (/422|not a fast forward/i.test(err.message)) {
+        throw new Error(
+      'Repository has changed. Please retry upload.'
+      );
+
+      }
+        throw err;
+    }
     return newCommit;
   }
 }

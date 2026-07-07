@@ -8,12 +8,30 @@ export class EventBus {
   }
 
   off(event, fn) {
-    this.#listeners.get(event)?.delete(fn);
-  }
+    const listeners = this.#listeners.get(event);
+
+    if (!listeners) return;
+
+    listeners.delete(fn);
+
+    if (listeners.size === 0) {
+        this.#listeners.delete(event);
+    }
+}
 
   emit(event, data) {
-    this.#listeners.get(event)?.forEach(fn => fn(data));
-  }
+    const listeners = this.#listeners.get(event);
+
+    if (!listeners) return;
+
+    for (const fn of listeners) {
+        try {
+            fn(data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+}
 }
 
 export const bus = new EventBus();

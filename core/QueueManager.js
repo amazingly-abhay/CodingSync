@@ -11,50 +11,98 @@ export class QueueManager {
   #processing = false;
 
   async enqueue(problem) {
-    const { uploadQueue = [] } = await Storage.getLocal(QUEUE_KEY);
-    const isDupe = uploadQueue.some(
-      i => i.problem.platform === problem.platform && i.problem.slug === problem.slug
-    );
-    if (isDupe) { logger.info(`Already queued: ${problem.title}`); return; }
+    const queue = await this.#loadQueue();
 
-    uploadQueue.push({ problem, retries: 0, addedAt: Date.now() });
-    await Storage.setLocal({ [QUEUE_KEY]: uploadQueue });
+    const exists = queue.some(
+      item =>
+        item.problem.platform === problem.platform &&
+        item.problem.slug === problem.slug
+    );
+
+    if (exists) {
+      logger.info(`Already queued: ${problem.title}`);
+      return;
+    }
+
+    queue.push({
+      problem,
+      retries: 0,
+      addedAt: Date.now()
+    });
+
+    await this.#saveQueue(queue);
+
     logger.info(`Queued: ${problem.title}`);
+
     this.process();
   }
 
-  async process() {
+async process() {
     if (this.#processing) return;
+
     this.#processing = true;
 
     try {
-      while (true) {
-        const { uploadQueue = [] } = await Storage.getLocal(QUEUE_KEY);
-        if (!uploadQueue.length) break;
+      const queue = await this.#loadQueue();
 
-        const item = uploadQueue[0];
+      while (queue.length) {
+        const item = queue[0];
+
         try {
           await uploadManager.upload(item.problem);
-          uploadQueue.shift();
-          await Storage.setLocal({ [QUEUE_KEY]: uploadQueue });
+
           logger.info(`Upload success: ${item.problem.title}`);
+
+          bus.emit('upload:success', item.problem);
+
+          queue.shift();
         } catch (err) {
-          item.retries += 1;
-          logger.warn(`Upload failed (attempt ${item.retries}/${MAX_RETRIES}): ${err.message}`);
+          item.retries++;
+
+          logger.warn(
+            `Upload failed (${item.retries}/${MAX_RETRIES}): ${err.message}`
+          );
 
           if (item.retries >= MAX_RETRIES) {
-            logger.error(`Dropping after ${MAX_RETRIES} attempts: ${item.problem.title}`);
+            logger.error(`Dropping: ${item.problem.title}`);
+
             bus.emit('upload:failed', item.problem);
-            uploadQueue.shift();
+
+            queue.shift();
+          } else {
+            const delay =
+              BASE_RETRY_DELAY * Math.pow(2, item.retries - 1);
+
+            await this.#saveQueue(queue);
+
+            await this.#sleep(delay);
+
+            continue;
           }
-          // Write back the mutated item (retries count persisted)
-          await Storage.setLocal({ [QUEUE_KEY]: uploadQueue });
-          await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
         }
+
+        await this.#saveQueue(queue);
       }
+    } catch (err) {
+      logger.error(`Queue processing error: ${err.message}`);
     } finally {
       this.#processing = false;
     }
+  }
+
+  async #loadQueue() {
+    const { uploadQueue = [] } = await Storage.getLocal(QUEUE_KEY);
+    return uploadQueue;
+  }
+
+  async #saveQueue(queue) {
+    await Storage.setLocal({
+      [QUEUE_KEY]: queue
+    });
+  }
+
+  #sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 

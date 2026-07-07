@@ -1,5 +1,5 @@
 import { Storage } from '../core/Storage.js';
-import { launchOAuth, getGitHubUser, createRepo } from '../shared/auth.js';
+import { launchOAuth, getGitHubUser, createRepo, getRepoInfo } from '../shared/auth.js';
 
 const $ = id => document.getElementById(id);
 const steps = ['auth', 'repo', 'done'];
@@ -72,19 +72,27 @@ $('repo-form').addEventListener('submit', async e => {
     const { token, owner } = await Storage.getConfig();
 
     let repoUrl;
+    let branch = 'main';
     try {
       const repoData = await createRepo(token, repoName, isPrivate);
       repoUrl = repoData.html_url;
+      branch = repoData.default_branch || 'main';
     } catch (err) {
       if (err.message === 'repo_exists') {
         repoUrl = `https://github.com/${owner}/${repoName}`;
         setStatus(msgEl, 'Linked to existing repository.', 'ok');
+        try {
+          const repoInfo = await getRepoInfo(token, owner, repoName);
+          branch = repoInfo.default_branch || 'main';
+        } catch {
+          // Fall back to main
+        }
       } else {
         throw err;
       }
     }
 
-    await Storage.set({ repo: repoName, branch: 'main', folderStrategy: strategy });
+    await Storage.set({ repo: repoName, branch, folderStrategy: strategy });
 
     setStatus(msgEl, '✓ Repository ready!', 'ok');
     await new Promise(r => setTimeout(r, 600));
