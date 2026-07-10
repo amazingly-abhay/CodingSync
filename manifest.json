@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Auto-sync accepted solutions to GitHub",
   "permissions": ["storage", "scripting", "tabs", "alarms", "identity"],
+  "key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv5ZEoyZ/Njrcw77V5Os2Mv6lBfrrPfozFP1vg5cHUQjZnIdTXGqphRUq6RfLbgFd/4bZK1kS7QHDDD6KkUe1qzfL7wt6Q0WxeNSBO7DdOr3cSkWnl6hKER5jIuQ7w9Q/xlNqf2CBAxTPfdF0H+YIF6h+6F4vp9d6IyJTimYUzx/ZpLvJkQ6FpT7dya307Eo/+kejBgXThmdz7fVEdb4PNsQkyhxZtwbaevObcT0mJvq5BFVNnV4O49hdh6HuOqT/koPbJAGiyaM8bEysvJBWD6dtNZxsM5HexmAnywxTAyyHS7537K+jzY6bnZRqLUD2zGX26k7+Jjxazqk3HiBrRQIDAQAB",
   "host_permissions": [
     "https://leetcode.com/problems/*",
     "https://www.geeksforgeeks.org/problems/*",
