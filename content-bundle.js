@@ -701,30 +701,55 @@
     return `${plugin.id}:${new URL(url).pathname}`;
   }
   async function syncProblem(plugin) {
-    const key = problemKey(location.href, plugin);
-    if (processed.has(key))
-      return;
-    processed.add(key);
-    logger.info("Accepted \u2014 extracting...");
-    try {
-      const problem = await plugin.extractProblem();
-      await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type: "PROBLEM_ACCEPTED", problem }, (res) => {
-          if (chrome.runtime.lastError)
+  const key = problemKey(location.href, plugin);
+
+  if (processed.has(key))
+    return;
+
+  processed.add(key);
+
+  logger.info("Accepted — extracting...");
+
+  try {
+    logger.info("Calling extractProblem()");
+
+    const problem = await plugin.extractProblem();
+
+    logger.info("extractProblem() finished");
+
+    console.log(problem);
+
+    logger.info("Sending message to background");
+
+    await new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(
+        {
+          type: "PROBLEM_ACCEPTED",
+          problem,
+        },
+        (res) => {
+          if (chrome.runtime.lastError) {
+            logger.error(chrome.runtime.lastError);
             reject(new Error(chrome.runtime.lastError.message));
-          else if (res?.ok === false)
+          } else if (res?.ok === false) {
             reject(new Error("Background rejected message"));
-          else
+          } else {
+            logger.info("Background acknowledged");
             resolve();
-        });
-      });
-      showToast(`CodingSync: synced "${problem.title}"`, "success");
-    } catch (err) {
-      processed.delete(key);
-      logger.error("Sync failed:", err);
-      showToast(`CodingSync: ${err.message}`, "error");
-    }
+          }
+        }
+      );
+    });
+
+    logger.info("Sync complete");
+
+    showToast(`CodingSync: synced "${problem.title}"`, "success");
+  } catch (err) {
+    processed.delete(key);
+    logger.error(err);
+    showToast(`CodingSync: ${err.message}`, "error");
   }
+}
   function startDomWatch(url) {
     const plugin = pluginManager.resolve(url);
     if (!plugin)
