@@ -9,7 +9,7 @@
 //    (from chrome://extensions after loading unpacked)
 // 4. Copy your Worker URL → paste into shared/auth.js as PROXY_URL
 
-const ALLOWED_EXTENSION_ID = 'lolnplnhdabnolgbcofnojfmdegoogkh';
+const ALLOWED_EXTENSION_ID = 'gfdhpeanhboglngeiffomcgdkkoncddp';
 // e.g. 'abcdefghijklmnopqrstuvwxyzabcdef'
 // This locks the Worker so only YOUR extension can use it.
 // Forks with a different extension ID will be blocked.
